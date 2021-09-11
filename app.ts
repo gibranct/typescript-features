@@ -1,13 +1,15 @@
+enum Role { ADMIN, READ_ONLY, AUTHOR }
+
 const person: {
     name: string;
     age: number;
     hobbies: string[];
-    role: [number, string];
+    role: Role
 } = {
     name: 'Gibran',
     age: 29,
     hobbies: ['Sports', 'Cooking'],
-    role: [2, 'author']
+    role: Role.ADMIN
 }
 
-person.role = [2, '']
+person.role = Role.READ_ONLY
