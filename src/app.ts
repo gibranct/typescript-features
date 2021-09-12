@@ -1,3 +1,9 @@
+const button = document.querySelector('button')
+
+button?.addEventListener('click', () => {
+    console.log('Clicked')
+})
+
 enum Role { ADMIN, READ_ONLY, AUTHOR }
 
 const person: {
@@ -11,7 +17,5 @@ const person: {
     hobbies: ['Sports', 'Cooking'],
     role: Role.ADMIN
 }
-
-document.querySelector('button')
 
 person.role = Role.READ_ONLY
