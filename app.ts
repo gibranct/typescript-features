@@ -12,4 +12,6 @@ const person: {
     role: Role.ADMIN
 }
 
+document.querySelector('button')
+
 person.role = Role.READ_ONLY
