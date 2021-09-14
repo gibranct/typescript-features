@@ -28,3 +28,39 @@ function extractAndConvert<T extends object, U extends keyof T>(obj: T, key: U) 
 }
 
 extractAndConvert({ name: 'Gibran' }, 'name')
+
+class DataStorage<T extends string | number | boolean> {
+    private data: T[] = []
+
+    addItem(item: T) {
+        this.data.push(item)
+    }
+
+    removeItem(item: T) {
+        const index = this.data.indexOf(item)
+        if (index === -1) return
+        this.data.splice(this.data.indexOf(item), 1)
+    }
+
+    getItem() {
+        return [...this.data]
+    }
+}
+
+const ds = new DataStorage<string>()
+
+interface CourseGoal {
+    title: string;
+    description: string;
+    completeUntil: Date;
+}
+
+function createCourse(title: string, description: string, date: Date): CourseGoal {
+    const courseGoal: Partial<CourseGoal> = {}
+    courseGoal.title = title
+    courseGoal.description = description
+    courseGoal.completeUntil = date
+    return courseGoal as CourseGoal
+}
+
+const names: Readonly<string[]> = ['Gibran', 'Tavares']
