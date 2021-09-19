@@ -43,6 +43,34 @@ function validate(obj: any): boolean {
     return isValid
 }
 
+class ProjectList {
+    templateFormEl: HTMLTemplateElement
+    appContainer: HTMLElement
+    sectionElement: HTMLElement
+
+    constructor(private type: 'active' | 'finished') {
+        this.templateFormEl = document.getElementById('project-list')! as HTMLTemplateElement
+        this.appContainer = document.getElementById('app')! as HTMLDivElement
+
+        const importedNode = document.importNode(this.templateFormEl.content, true)
+        this.sectionElement = importedNode.firstElementChild as HTMLElement
+        this.sectionElement.id = `${this.type}-projects`
+
+        this.renderContent()
+        this.attach()
+    }
+
+    private renderContent() {
+        const listId = `${this.type}-projects-list`
+        this.sectionElement.querySelector('ul')!.id = listId
+        this.sectionElement.querySelector('h2')!.textContent = `${this.type} PROJECTS`.toUpperCase()
+    }
+
+    private attach() {
+        this.appContainer.insertAdjacentElement('beforeend', this.sectionElement)
+    }
+}
+
 class ProjectInput {
     templateFormEl: HTMLTemplateElement
     appContainer: HTMLDivElement
@@ -97,6 +125,7 @@ class ProjectInput {
         if (!Array.isArray(userInput)) return
         const [title, description, people] = userInput
         console.log(title, description, people);
+        this.formElement.reset()
     }
 
     private attach() {
@@ -106,3 +135,5 @@ class ProjectInput {
 }
 
 const pInput = new ProjectInput()
+const activeProList = new ProjectList('active')
+const finishedProList = new ProjectList('finished')
