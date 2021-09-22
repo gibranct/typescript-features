@@ -43,38 +43,51 @@ function validate(obj: any): boolean {
     return isValid
 }
 
-class ProjectList {
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     templateFormEl: HTMLTemplateElement
-    appContainer: HTMLElement
-    sectionElement: HTMLElement
+    hostElement: T
+    element: U
 
-    constructor(private type: 'active' | 'finished') {
-        this.templateFormEl = document.getElementById('project-list')! as HTMLTemplateElement
-        this.appContainer = document.getElementById('app')! as HTMLDivElement
+    constructor(private templateId: string, private hostId: string, private insertAtStart: boolean, private newElementId?: string) {
+        this.templateFormEl = document.getElementById(this.templateId)! as HTMLTemplateElement
+        this.hostElement = document.getElementById(this.hostId)! as T
 
         const importedNode = document.importNode(this.templateFormEl.content, true)
-        this.sectionElement = importedNode.firstElementChild as HTMLElement
-        this.sectionElement.id = `${this.type}-projects`
+        this.element = importedNode.firstElementChild as U
+        if (this.newElementId) {
+            this.element.id = this.newElementId
+        }
 
-        this.renderContent()
-        this.attach()
+        this.attach(this.insertAtStart)
     }
 
-    private renderContent() {
-        const listId = `${this.type}-projects-list`
-        this.sectionElement.querySelector('ul')!.id = listId
-        this.sectionElement.querySelector('h2')!.textContent = `${this.type} PROJECTS`.toUpperCase()
+    private attach(insertAtBeginning: boolean) {
+        const position = insertAtBeginning ? 'afterbegin' : 'beforeend' 
+        this.hostElement.insertAdjacentElement(position, this.element)
     }
 
-    private attach() {
-        this.appContainer.insertAdjacentElement('beforeend', this.sectionElement)
-    }
+    abstract configure(): void
+    abstract renderContent(): void
 }
 
-class ProjectInput {
-    templateFormEl: HTMLTemplateElement
-    appContainer: HTMLDivElement
-    formElement: HTMLFormElement
+class ProjectList extends Component<HTMLElement, HTMLElement> {
+
+    constructor(private type: 'active' | 'finished') {
+        super('project-list', 'app', false, `${type}-projects`)
+
+        this.renderContent()
+    }
+
+    renderContent() {
+        const listId = `${this.type}-projects-list`
+        this.element.querySelector('ul')!.id = listId
+        this.element.querySelector('h2')!.textContent = `${this.type} PROJECTS`.toUpperCase()
+    }
+
+    configure() {}
+}
+
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
 
     @Required
     titleInput: HTMLInputElement
@@ -87,25 +100,20 @@ class ProjectInput {
 
 
     constructor() {
-        this.templateFormEl = document.getElementById('project-input')! as HTMLTemplateElement
-        this.appContainer = document.getElementById('app')! as HTMLDivElement
+        super('project-input', 'app', false, 'user-input')
 
-        const importedNode = document.importNode(this.templateFormEl.content, true)
-        this.formElement = importedNode.firstElementChild as HTMLFormElement 
-        this.formElement.id = 'user-input'
-
-        this.titleInput = this.formElement.querySelector('#title')!
-        this.descriptionTextArea = this.formElement.querySelector('#description')!
-        this.numberInput = this.formElement.querySelector('#people')!
-
+        this.titleInput = this.element.querySelector('#title')!
+        this.descriptionTextArea = this.element.querySelector('#description')!
+        this.numberInput = this.element.querySelector('#people')!
 
         this.configure()
-        this.attach()
     }
 
-    private configure() {
-        this.formElement.addEventListener('submit', this.submitHandler)
+    configure() {
+        this.element.addEventListener('submit', this.submitHandler)
     }
+
+    renderContent() {}
 
     private fetchUserInput(): [string, string, number] | undefined {
         const title = this.titleInput.value
@@ -125,12 +133,7 @@ class ProjectInput {
         if (!Array.isArray(userInput)) return
         const [title, description, people] = userInput
         console.log(title, description, people);
-        this.formElement.reset()
-    }
-
-    private attach() {
-        console.log(this.formElement);
-        this.appContainer.insertAdjacentElement('afterbegin', this.formElement)
+        this.element.reset()
     }
 }
 
